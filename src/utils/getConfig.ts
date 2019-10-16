@@ -24,7 +24,7 @@ export default () => {
 
   if (!url) {
     throw new Error(
-      'URL is required. Please specify a valid channel id in constants.ts',
+      'URL is required. Please specify a valid url in constants.ts',
     );
   }
 
