@@ -1,5 +1,7 @@
 import dotenv from 'dotenv';
 
+import { channelId, url } from '../constants';
+
 export default () => {
   dotenv.config();
 
@@ -14,14 +16,22 @@ export default () => {
   }
   const allowedUsers: string[] = JSON.parse(whitelist);
 
-  const channelId = process.env.CHANNEL_ID;
   if (!channelId) {
-    throw new Error('channel id is required');
+    throw new Error(
+      'Channel id is required. Please specify a valid channel id in constants.ts',
+    );
+  }
+
+  if (!url) {
+    throw new Error(
+      'URL is required. Please specify a valid channel id in constants.ts',
+    );
   }
 
   return {
     token,
     allowedUsers,
     channelId,
+    url,
   };
 };
