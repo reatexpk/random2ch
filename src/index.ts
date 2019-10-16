@@ -1,13 +1,12 @@
 import Telegraf from 'telegraf';
 
+import Api from './api';
 import getConfig from './utils/getConfig';
+import checkUser from './utils/checkUser';
 
-const { token, allowedUsers, channelId } = getConfig();
+const { token, channelId, url } = getConfig();
 
-function checkUser(username: string) {
-  return allowedUsers.includes(username);
-}
-
+const api = new Api(url);
 const bot = new Telegraf(token);
 
 // Auth middleware
@@ -30,6 +29,16 @@ bot.command('post', (ctx) => {
   ctx.telegram.sendMessage(channelId, 'Test post via /post command');
 });
 
+bot.command('count', async (ctx) => {
+  try {
+    const data = await api.getThreads();
+    ctx.reply(`Current threads amount: ${data.threads.length}`);
+  } catch (error) {
+    ctx.reply(`An error occurred:\n${error.message}`);
+  }
+});
+
+// handle unknown commands and messages
 bot.on('message', (ctx) => ctx.reply('Unknown command'));
 
 bot.startPolling();
