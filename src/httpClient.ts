@@ -1,5 +1,7 @@
 import axios from 'axios';
 
+import { corsProxy } from './constants';
+
 export default class HttpClient {
   private readonly url: string;
 
@@ -8,7 +10,7 @@ export default class HttpClient {
   }
 
   public async get<T>(): Promise<T> {
-    const response = await axios.get<T>(this.url);
+    const response = await axios.get<T>(`${corsProxy}${this.url}`);
     return response.data;
   }
 }
