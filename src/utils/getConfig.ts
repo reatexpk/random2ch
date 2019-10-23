@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 
-import { channelId, url } from '../constants';
+import { channelId, url, corsProxyHost, corsProxyPort } from '../constants';
 
 export default () => {
   dotenv.config();
@@ -28,10 +28,15 @@ export default () => {
     );
   }
 
+  const proxy = process.env.PROXY;
+
   return {
     token,
     allowedUsers,
     channelId,
     url,
+    proxy: proxy || '',
+    corsProxyHost,
+    corsProxyPort,
   };
 };
