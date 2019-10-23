@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/camelcase */
 import Telegraf from 'telegraf';
 import mongoose, { Schema, Document } from 'mongoose';
 import HttpsProxyAgent from 'https-proxy-agent';
@@ -76,7 +77,8 @@ mongoose
 
     function parseComment(comment: string) {
       const parsedComment = comment
-        .replace('_', '\\_')
+        .replace(/_/g, '\\_')
+        .replace(/\[/g, '\\[')
         .replace(/<br\s*\/?>/gi, '\n')
         .replace(/<br>/gi, '\n')
         .replace(/<\/?strong>/gi, '*')
@@ -130,7 +132,6 @@ mongoose
               const post = createPost(thread);
               ctx.telegram
                 .sendMessage(channelId, post, {
-                  // eslint-disable-next-line @typescript-eslint/camelcase
                   parse_mode: 'Markdown',
                 })
                 .catch(() => {
@@ -138,6 +139,9 @@ mongoose
                     'error-log.log',
                     `[${new Date().toISOString()}]: an error occurred with thread ${_id}`,
                     () => {},
+                  );
+                  ctx.reply(
+                    `Failed to post thread ${_id}\n\n${thread.comment}`,
                   );
                 });
             })
