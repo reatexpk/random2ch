@@ -3,12 +3,12 @@ import Telegraf from 'telegraf';
 import mongoose, { Schema, Document } from 'mongoose';
 import HttpsProxyAgent from 'https-proxy-agent';
 import corsProxy from 'cors-anywhere';
-import he from 'he';
 import fs from 'fs';
 
 import Api from './api';
 import getConfig from './utils/getConfig';
 import checkUser from './utils/checkUser';
+import createPost from './utils/createPost';
 
 import { Thread as ThreadType } from './typings/server';
 
@@ -65,40 +65,6 @@ mongoose
       },
     });
     const Thread = mongoose.model<ThreadModel>('threads', ThreadSchema);
-
-    function replaceLinks(comment: string) {
-      return comment.replace(
-        /<a.+?href="(.+?)".{0,}?>(.+?)<\/a>/g,
-        (_match, link, linkText) => {
-          return `[${linkText}](${link})`;
-        },
-      );
-    }
-
-    function parseComment(comment: string) {
-      const parsedComment = comment
-        .replace(/_/g, '\\_')
-        .replace(/\[/g, '\\[')
-        .replace(/<br\s*\/?>/gi, '\n')
-        .replace(/<br>/gi, '\n')
-        .replace(/<\/?strong>/gi, '*')
-        .replace(/<\/?em>/gi, '_')
-        .replace(/<span class="spoiler">/gi, '')
-        .replace(/<\/span>/gi, '');
-      return replaceLinks(he.decode(parsedComment));
-    }
-
-    function createPost({ subject, comment, num, files }: ThreadType) {
-      const imageSrc =
-        files && files.length
-          ? `https://2ch.hk${files[0].path}`
-          : `https://2ch.hk/b/res/${num}.html`;
-      const post =
-        `*${parseComment(subject)}*[⠀](${imageSrc})\n\n` +
-        `${parseComment(comment)}\n\n` +
-        `https://2ch.hk/b/res/${num}.html`;
-      return post;
-    }
 
     // Auth middleware
     bot.use(async (ctx, next) => {
