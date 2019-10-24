@@ -87,9 +87,6 @@ mongoose
       ctx.reply('Collection has been dropped');
     });
 
-    // handle unknown commands and messages
-    bot.on('message', (ctx) => ctx.reply('Unknown command'));
-
     bot.startPolling();
   })
   .catch((err) => console.log(err));
