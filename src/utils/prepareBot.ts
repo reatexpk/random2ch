@@ -24,7 +24,5 @@ export default () => {
     }
   });
 
-  bot.on('message', (ctx) => ctx.reply('Unknown command'));
-
   return bot;
 };
