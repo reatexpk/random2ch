@@ -6,6 +6,7 @@ import fs from 'fs';
 import Api from '../api';
 import getConfig from '../utils/getConfig';
 import createPost from '../utils/createPost';
+import { asyncForEach, sleep } from '../utils/async';
 
 import { Thread as ThreadType } from '../typings/server';
 
@@ -13,25 +14,6 @@ import ThreadModel from '../models/thread';
 
 const { channelId, url, adminChatId } = getConfig();
 const api = new Api(url);
-
-async function asyncForEach<T>(
-  array: T[],
-  callback: (elem: T, index: number, array: T[]) => void,
-) {
-  for (let index = 0; index < array.length; ) {
-    // eslint-disable-next-line no-await-in-loop
-    await callback(array[index], index, array);
-    index += 1;
-  }
-}
-
-function sleep(delay: number) {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve();
-    }, delay);
-  });
-}
 
 export async function firstLoadController(ctx: ContextMessageUpdate) {
   try {
@@ -94,10 +76,10 @@ export async function jobPostController(bot: telegraf<ContextMessageUpdate>) {
             .sendMessage(channelId, post, {
               parse_mode: 'Markdown',
             })
-            .catch(() => {
+            .catch((err) => {
               fs.appendFile(
                 'error-log.log',
-                `[${new Date().toISOString()}]: an error occurred with thread ${_id}`,
+                `[${new Date().toISOString()}]: an error occurred with thread ${_id}\n${err}\n\n`,
                 () => {},
               );
               bot.telegram.sendMessage(
