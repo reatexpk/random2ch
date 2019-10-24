@@ -1,11 +1,11 @@
 import bootstrapApp from './bootstrap';
 
-import postController from './controllers/post';
+import { firstLoadController } from './controllers/post';
 import dropController from './controllers/drop';
 
 bootstrapApp().then((bot) => {
-  bot.command('post', async (ctx) => {
-    await postController(ctx);
+  bot.command('first_load', async (ctx) => {
+    await firstLoadController(ctx);
   });
 
   bot.command('drop', async (ctx) => {

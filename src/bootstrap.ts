@@ -2,9 +2,12 @@
 import telegraf, { ContextMessageUpdate } from 'telegraf';
 import mongoose from 'mongoose';
 import corsProxy from 'cors-anywhere';
+import { CronJob } from 'cron';
 
 import getConfig from './utils/getConfig';
 import prepareBot from './utils/prepareBot';
+
+import { jobPostController } from './controllers/post';
 
 const { corsProxyHost, corsProxyPort } = getConfig();
 
@@ -34,7 +37,23 @@ export default (): Promise<telegraf<ContextMessageUpdate>> => {
       })
       .then(() => {
         console.log('Connected to MongoDB');
+
         const bot = prepareBot();
+
+        const job = new CronJob('*/1 * * * *', async () => {
+          await jobPostController(bot);
+        });
+
+        bot.command('start_job', (ctx) => {
+          job.start();
+          ctx.reply('Job started');
+        });
+
+        bot.command('stop_job', (ctx) => {
+          job.stop();
+          ctx.reply('Job stopped');
+        });
+
         resolve(bot);
       })
       .catch((err) => {
