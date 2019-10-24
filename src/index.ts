@@ -1,25 +1,16 @@
 /* eslint-disable @typescript-eslint/camelcase */
-import Telegraf from 'telegraf';
 import mongoose, { Schema, Document } from 'mongoose';
-import HttpsProxyAgent from 'https-proxy-agent';
 import corsProxy from 'cors-anywhere';
 import fs from 'fs';
 
 import Api from './api';
 import getConfig from './utils/getConfig';
-import checkUser from './utils/checkUser';
 import createPost from './utils/createPost';
+import prepareBot from './utils/prepareBot';
 
 import { Thread as ThreadType } from './typings/server';
 
-const {
-  token,
-  channelId,
-  url,
-  proxy,
-  corsProxyHost,
-  corsProxyPort,
-} = getConfig();
+const { channelId, url, corsProxyHost, corsProxyPort } = getConfig();
 
 corsProxy
   .createServer({
@@ -30,11 +21,6 @@ corsProxy
   });
 
 const api = new Api(url);
-const bot = new Telegraf(token, {
-  telegram: {
-    agent: new HttpsProxyAgent(proxy),
-  },
-});
 
 interface ThreadModel extends Document {
   subject: string;
@@ -66,17 +52,7 @@ mongoose
     });
     const Thread = mongoose.model<ThreadModel>('threads', ThreadSchema);
 
-    // Auth middleware
-    bot.use(async (ctx, next) => {
-      const { username } = await ctx.getChat();
-      if ((!username || !checkUser(username)) && `@${username}` !== channelId) {
-        ctx.reply('Access denied');
-        return;
-      }
-      if (next) {
-        next();
-      }
-    });
+    const bot = prepareBot();
 
     bot.command('check', (ctx) => {
       ctx.telegram.sendMessage(channelId, 'Test post');
