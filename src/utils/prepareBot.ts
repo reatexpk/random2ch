@@ -24,5 +24,9 @@ export default () => {
     }
   });
 
+  bot.command('check', (ctx) => {
+    ctx.telegram.sendMessage(channelId, 'Test post');
+  });
+
   return bot;
 };
