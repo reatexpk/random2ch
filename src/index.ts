@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/camelcase */
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose from 'mongoose';
 import corsProxy from 'cors-anywhere';
 import fs from 'fs';
 
@@ -8,7 +8,7 @@ import getConfig from './utils/getConfig';
 import createPost from './utils/createPost';
 import prepareBot from './utils/prepareBot';
 
-import { Thread as ThreadType } from './typings/server';
+import ThreadModel from './models/thread';
 
 const { channelId, url, corsProxyHost, corsProxyPort } = getConfig();
 
@@ -21,12 +21,6 @@ corsProxy
   });
 
 const api = new Api(url);
-
-interface ThreadModel extends Document {
-  subject: string;
-  comment: string;
-  num: string;
-}
 
 const mongoURI = process.env.MONGO_URI;
 if (!mongoURI) {
@@ -42,16 +36,6 @@ mongoose
   .then(() => {
     console.log('Connected to MongoDB');
 
-    const ThreadSchema = new Schema<ThreadType>({
-      subject: String,
-      comment: String,
-      num: {
-        type: String,
-        unique: true,
-      },
-    });
-    const Thread = mongoose.model<ThreadModel>('threads', ThreadSchema);
-
     const bot = prepareBot();
 
     bot.command('check', (ctx) => {
@@ -66,7 +50,7 @@ mongoose
           .reverse()
           .slice(0, 10)
           .forEach(async (thread) => {
-            const newThread = new Thread({
+            const newThread = new ThreadModel({
               subject: thread.subject,
               comment: thread.comment,
               num: thread.num,
@@ -99,7 +83,7 @@ mongoose
     });
 
     bot.command('drop', async (ctx) => {
-      await Thread.deleteMany({});
+      await ThreadModel.deleteMany({});
       ctx.reply('Collection has been dropped');
     });
 
