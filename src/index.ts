@@ -120,33 +120,36 @@ mongoose
       try {
         const data = await api.getThreads();
 
-        data.threads.slice(0, 10).forEach(async (thread) => {
-          const newThread = new Thread({
-            subject: thread.subject,
-            comment: thread.comment,
-            num: thread.num,
+        data.threads
+          .reverse()
+          .slice(0, 10)
+          .forEach(async (thread) => {
+            const newThread = new Thread({
+              subject: thread.subject,
+              comment: thread.comment,
+              num: thread.num,
+            });
+            await newThread
+              .save()
+              .then(({ _id }) => {
+                const post = createPost(thread);
+                ctx.telegram
+                  .sendMessage(channelId, post, {
+                    parse_mode: 'Markdown',
+                  })
+                  .catch(() => {
+                    fs.appendFile(
+                      'error-log.log',
+                      `[${new Date().toISOString()}]: an error occurred with thread ${_id}`,
+                      () => {},
+                    );
+                    ctx.reply(
+                      `Failed to post thread ${_id}\n\n${thread.comment}`,
+                    );
+                  });
+              })
+              .catch(() => {});
           });
-          await newThread
-            .save()
-            .then(({ _id }) => {
-              const post = createPost(thread);
-              ctx.telegram
-                .sendMessage(channelId, post, {
-                  parse_mode: 'Markdown',
-                })
-                .catch(() => {
-                  fs.appendFile(
-                    'error-log.log',
-                    `[${new Date().toISOString()}]: an error occurred with thread ${_id}`,
-                    () => {},
-                  );
-                  ctx.reply(
-                    `Failed to post thread ${_id}\n\n${thread.comment}`,
-                  );
-                });
-            })
-            .catch(() => {});
-        });
         ctx.reply('New threads have been posted');
       } catch (error) {
         console.log(error);
