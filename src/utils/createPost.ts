@@ -20,8 +20,7 @@ function parseComment(comment: string) {
     .replace(/<br>/gi, '\n')
     .replace(/<\/?strong>/gi, '*')
     .replace(/<\/?em>/gi, '_')
-    .replace(/<span class="spoiler">/gi, '')
-    .replace(/<\/span>/gi, '');
+    .replace(/<\/?span.*?>/gi, '');
   return replaceLinks(he.decode(parsedComment));
 }
 

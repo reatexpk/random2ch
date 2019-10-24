@@ -30,6 +30,11 @@ export default () => {
 
   const proxy = process.env.PROXY;
 
+  const adminChatId = process.env.ADMIN_CHAT_ID;
+  if (!adminChatId) {
+    throw new Error('Admin chat ID is required');
+  }
+
   return {
     token,
     allowedUsers,
@@ -38,5 +43,6 @@ export default () => {
     proxy: proxy || '',
     corsProxyHost,
     corsProxyPort,
+    adminChatId,
   };
 };
