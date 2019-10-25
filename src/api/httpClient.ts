@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import { corsProxy } from './constants';
+import { corsProxy } from '../constants';
 
 export default class HttpClient {
   private readonly url: string;

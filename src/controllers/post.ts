@@ -3,7 +3,7 @@
 import telegraf, { ContextMessageUpdate } from 'telegraf';
 import fs from 'fs';
 
-import Api from '../api';
+import Api from '../api/api';
 import getConfig from '../utils/getConfig';
 import createPost, { transformPostOnError } from '../utils/createPost';
 

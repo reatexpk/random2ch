@@ -1,6 +1,6 @@
 import HttpClient from './httpClient';
 
-import { GetThreadsResponse } from './typings/server';
+import { GetThreadsResponse } from '../typings/server';
 
 interface ApiInterface {
   getThreads: () => Promise<GetThreadsResponse>;
