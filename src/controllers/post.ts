@@ -36,16 +36,18 @@ export default async function jobPostController(
               if (err.code === 429) {
                 return;
               }
+
               const fallbackPost = transformPostOnError(post);
               bot.telegram.sendMessage(channelId, fallbackPost).catch(() => {
                 fs.appendFile(
                   'error-log.log',
-                  `[${new Date().toISOString()}]: an error occurred with thread ${_id}\n${err}\n\n`,
-                  () => {},
-                );
-                bot.telegram.sendMessage(
-                  adminChatId,
-                  `Failed to post thread ${_id}\n\n${thread.comment}`,
+                  `[${new Date().toISOString()}]: an error occurred with thread ${_id}: ${err}\n`,
+                  () => {
+                    bot.telegram.sendMessage(
+                      adminChatId,
+                      `Failed to post thread ${_id}\n\n${thread.comment}\n\nError:\n${err}`,
+                    );
+                  },
                 );
               });
             });
