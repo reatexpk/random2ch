@@ -7,7 +7,7 @@ import { CronJob } from 'cron';
 import getConfig from './utils/getConfig';
 import prepareBot from './utils/prepareBot';
 
-import { jobPostController } from './controllers/post';
+import jobPostController from './controllers/post';
 
 const { corsProxyHost, corsProxyPort } = getConfig();
 
