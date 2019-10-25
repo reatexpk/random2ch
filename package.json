@@ -5,7 +5,8 @@
   "author": "reatexpk <reatexpk1@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "start": "nodemon src/index.ts localhost 4000"
+    "start": "nodemon src/index.ts localhost 4000",
+    "firstload": "cross-env FIRST_LOAD=true nodemon src/index.ts localhost 4000"
   },
   "husky": {
     "hooks": {
@@ -24,6 +25,7 @@
     "@types/mongoose": "^5.5.23",
     "@typescript-eslint/eslint-plugin": "^2.4.0",
     "@typescript-eslint/parser": "^2.4.0",
+    "cross-env": "^6.0.3",
     "eslint": "^6.5.1",
     "eslint-config-airbnb-base": "^14.0.0",
     "eslint-config-prettier": "^6.4.0",

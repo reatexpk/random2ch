@@ -60,6 +60,13 @@ export default (): Promise<telegraf<ContextMessageUpdate>> => {
         });
         logger.info('Task created');
 
+        if (!process.env.FIRST_LOAD) {
+          logger.info('Starting background task by default');
+          job.start();
+          isTaskRunning = true;
+          logger.info('Background task has been started');
+        }
+
         logger.info('Adding controls to manipulate background task');
         bot.command('start_job', (ctx) => {
           logger.info('Starting background task');
@@ -78,10 +85,13 @@ export default (): Promise<telegraf<ContextMessageUpdate>> => {
         });
 
         bot.command('/status', (ctx) => {
+          const lastExecutionTime = job.lastDate()
+            ? job.lastDate().toISOString()
+            : '0';
           ctx.reply(
             isTaskRunning
-              ? `Task is running\nLast execution time is ${job.lastDate}`
-              : `Task has been stopped\nLast execution time is ${job.lastDate}`,
+              ? `Task is running\nLast execution time is ${lastExecutionTime}`
+              : `Task has been stopped\nLast execution time is ${lastExecutionTime}`,
           );
         });
 
