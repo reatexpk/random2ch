@@ -1,6 +1,6 @@
 import bootstrapApp from './bootstrap';
 
-import { firstLoadController } from './controllers/post';
+import firstLoadController from './controllers/firstLoad';
 import dropController from './controllers/drop';
 
 bootstrapApp().then((bot) => {
