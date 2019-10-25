@@ -10,7 +10,7 @@ import createPost, { transformPostOnError } from '../utils/createPost';
 import ThreadModel from '../models/thread';
 
 const { channelId, url, adminChatId } = getConfig();
-const api = new Api(`${url}/test`);
+const api = new Api(url);
 
 export default async function jobPostController(
   bot: telegraf<ContextMessageUpdate>,
