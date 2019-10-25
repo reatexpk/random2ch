@@ -3,6 +3,18 @@ import he from 'he';
 import { Thread as ThreadType } from '../typings/server';
 import { baseUrl } from '../constants';
 
+export function transformPostOnError(post: string) {
+  const parsedPost = he
+    .decode(post)
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<br>/gi, '\n')
+    .replace(/<\/?strong>/gi, '')
+    .replace(/<\/?em>/gi, '')
+    .replace(/<\/?span.*?>/gi, '')
+    .replace(/<a.+?href="(.+?)".{0,}?>(.+?)<\/a>/g, '$1');
+  return parsedPost;
+}
+
 function replaceLinks(comment: string) {
   return comment.replace(
     /<a.+?href="(.+?)".{0,}?>(.+?)<\/a>/g,
@@ -12,9 +24,10 @@ function replaceLinks(comment: string) {
   );
 }
 
-function parseComment(comment: string) {
+export function parseComment(comment: string) {
   const parsedComment = comment
     .replace(/_/g, '\\_')
+    .replace(/\*/g, '\\*')
     .replace(/\[/g, '\\[')
     .replace(/<br\s*\/?>/gi, '\n')
     .replace(/<br>/gi, '\n')
