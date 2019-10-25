@@ -17,6 +17,8 @@ if (!mongoURI) {
   throw new Error('Mongo URI is required');
 }
 
+let isTaskRunning = false;
+
 export default (): Promise<telegraf<ContextMessageUpdate>> => {
   return new Promise((resolve, reject) => {
     logger.info('Starting app');
@@ -62,6 +64,7 @@ export default (): Promise<telegraf<ContextMessageUpdate>> => {
         bot.command('start_job', (ctx) => {
           logger.info('Starting background task');
           job.start();
+          isTaskRunning = true;
           logger.info('Background task has been started');
           ctx.reply('Job started');
         });
@@ -69,8 +72,17 @@ export default (): Promise<telegraf<ContextMessageUpdate>> => {
         bot.command('stop_job', (ctx) => {
           logger.info('Stopping background task');
           job.stop();
+          isTaskRunning = false;
           ctx.reply('Job stopped');
           logger.info('Background task has been stopped');
+        });
+
+        bot.command('/status', (ctx) => {
+          ctx.reply(
+            isTaskRunning
+              ? `Task is running\nLast execution time is ${job.lastDate}`
+              : `Task has been stopped\nLast execution time is ${job.lastDate}`,
+          );
         });
 
         resolve(bot);
