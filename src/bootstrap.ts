@@ -6,6 +6,7 @@ import { CronJob } from 'cron';
 
 import getConfig from './utils/getConfig';
 import prepareBot from './utils/prepareBot';
+import logger from './utils/logger';
 
 import jobPostController from './controllers/post';
 
@@ -18,16 +19,22 @@ if (!mongoURI) {
 
 export default (): Promise<telegraf<ContextMessageUpdate>> => {
   return new Promise((resolve, reject) => {
+    logger.info('Starting app');
+    logger.info('Preparing cors proxy server');
     corsProxy
       .createServer({
         originWhitelist: [],
       })
       .listen(corsProxyPort, corsProxyHost, () => {
+        logger.info(
+          `Cors proxy server is running on ${corsProxyHost}:${corsProxyPort}`,
+        );
         console.log(
           `Running CORS Anywhere on ${corsProxyHost}:${corsProxyPort}`,
         );
       });
 
+    logger.info(`Trying to connect to database, URI: ${mongoURI}`);
     mongoose
       .connect(mongoURI, {
         useNewUrlParser: true,
@@ -36,28 +43,40 @@ export default (): Promise<telegraf<ContextMessageUpdate>> => {
         useUnifiedTopology: true,
       })
       .then(() => {
+        logger.info('Successfully connected to database');
         console.log('Connected to MongoDB');
 
+        logger.info('Preparing bot');
         const bot = prepareBot();
+        logger.info('Bot is ready to launch');
 
+        logger.info('Creating background task to update threads every minute');
         const job = new CronJob('*/1 * * * *', async () => {
+          logger.info('Background task is running');
           await jobPostController(bot);
+          logger.info('Background task completed');
         });
+        logger.info('Task created');
 
+        logger.info('Adding controls to manipulate background task');
         bot.command('start_job', (ctx) => {
+          logger.info('Starting background task');
           job.start();
+          logger.info('Background task has been started');
           ctx.reply('Job started');
         });
 
         bot.command('stop_job', (ctx) => {
+          logger.info('Stopping background task');
           job.stop();
           ctx.reply('Job stopped');
+          logger.info('Background task has been stopped');
         });
 
         resolve(bot);
       })
       .catch((err) => {
-        console.log('Failed to start app');
+        logger.error(`Couldn't connect to database\n${err}`);
         console.log(err);
         reject();
       });
