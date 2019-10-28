@@ -15,10 +15,8 @@ const api = new Api(url);
 export default async function jobPostController(
   bot: telegraf<ContextMessageUpdate>,
 ) {
-  logger.info('Trying to fetch threads');
   try {
     const data = await api.getThreads();
-    logger.info('Threads have been fetched');
 
     data.threads.reverse().forEach((thread) => {
       const newThread = new ThreadModel({
@@ -42,9 +40,13 @@ export default async function jobPostController(
               logger.warn(
                 `Failed to post thread ${_id} with markdown, retry without markdown`,
               );
+              bot.telegram.sendMessage(
+                channelId,
+                `Failed to post thread ${_id} with markdown\n${thread.comment}`,
+              );
               const fallbackPost = transformPostOnError(post);
               bot.telegram.sendMessage(channelId, fallbackPost).catch(() => {
-                const errorMessage = `Failed to post thread ${_id}\n\n${thread.comment}\n\nError:\n${err}`;
+                const errorMessage = `Failed to post thread ${_id}\n${thread.comment}\n${err}`;
                 logger.error(errorMessage);
                 bot.telegram.sendMessage(adminChatId, errorMessage);
               });

@@ -54,9 +54,7 @@ export default (): Promise<telegraf<ContextMessageUpdate>> => {
 
         logger.info('Creating background task to update threads every minute');
         const job = new CronJob('*/1 * * * *', async () => {
-          logger.info('Background task is running');
           await jobPostController(bot);
-          logger.info('Background task completed');
         });
         logger.info('Task created');
 
