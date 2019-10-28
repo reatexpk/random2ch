@@ -51,6 +51,12 @@ function finalCheck(parsedString: string) {
       '$1',
     );
   }
+  if (returnString.match(/<strong>([^]+)<em>([^]+)<\/em>([^]+)<\/strong>/gi)) {
+    returnString = returnString.replace(/<\/?em>/gi, '$1');
+  }
+  if (returnString.match(/<em>([^]+)<em>([^]+)<\/em>([^]+)<\/em>/gi)) {
+    returnString = returnString.replace(/<\/?strong>/gi, '$1');
+  }
   return returnString;
 }
 
