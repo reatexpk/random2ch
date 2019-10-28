@@ -37,6 +37,47 @@ export function parseComment(comment: string) {
   return replaceLinks(he.decode(parsedComment));
 }
 
+function finalCheck(parsedString: string) {
+  let returnString = parsedString;
+  if (returnString.match(/<em>([^]+<a\s.*?>([^]+)<\/a>[^]+)<\/em>/gi)) {
+    returnString = returnString.replace(
+      /<a.+?href="(.+?)".{0,}?>(.+?)<\/a>/gi,
+      '$1',
+    );
+  }
+  if (returnString.match(/<strong>([^]+<a\s.*?>([^]+)<\/a>[^]+)<\/strong>/gi)) {
+    returnString = returnString.replace(
+      /<a.+?href="(.+?)".{0,}?>(.+?)<\/a>/gi,
+      '$1',
+    );
+  }
+  return returnString;
+}
+
+function parseStringToHtml(text: string) {
+  const decodedHtml = he.decode(text);
+  const returnString = decodedHtml
+    .replace(/<br>/gi, '\n')
+    .replace(/<br \/>/gi, '\n')
+    .replace(/<\/?sup>/gi, '')
+    .replace(/<\/?sub>/gi, '')
+    .replace(/<\/?span.*?>/gi, '');
+  return finalCheck(returnString);
+}
+
+export function createPostTest({ subject, comment, num, files }: ThreadType) {
+  const imageSrc =
+    files && files.length
+      ? `${baseUrl}${files[0].path}`
+      : `${baseUrl}/b/res/${num}.html`;
+  const post =
+    `<strong>${parseStringToHtml(subject)}</strong>` +
+    `<a href="${imageSrc}">⠀</a>\n\n` +
+    `${parseStringToHtml(comment)}\n\n` +
+    `${baseUrl}/b/res/${num}.html`;
+  return post;
+}
+
 export default function createPost({
   subject,
   comment,
