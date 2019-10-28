@@ -41,7 +41,7 @@ export default async function jobPostController(
                 `Failed to post thread ${_id} with markdown, retry without markdown`,
               );
               bot.telegram.sendMessage(
-                channelId,
+                adminChatId,
                 `Failed to post thread ${_id} with markdown\n${thread.comment}`,
               );
               const fallbackPost = transformPostOnError(post);
