@@ -10,7 +10,7 @@ import logger from './utils/logger';
 
 import jobPostController from './controllers/post';
 
-const { corsProxyHost, corsProxyPort } = getConfig();
+const { corsProxyHost, corsProxyPort, adminChatId } = getConfig();
 
 const mongoURI = process.env.MONGO_URI;
 if (!mongoURI) {
@@ -18,6 +18,9 @@ if (!mongoURI) {
 }
 
 let isTaskRunning = false;
+
+logger.info('Preparing bot');
+const bot = prepareBot();
 
 export default (): Promise<telegraf<ContextMessageUpdate>> => {
   return new Promise((resolve, reject) => {
@@ -48,8 +51,6 @@ export default (): Promise<telegraf<ContextMessageUpdate>> => {
         logger.info('Successfully connected to database');
         console.log('Connected to MongoDB');
 
-        logger.info('Preparing bot');
-        const bot = prepareBot();
         logger.info('Bot is ready to launch');
 
         logger.info('Creating background task to update threads every minute');
@@ -96,6 +97,7 @@ export default (): Promise<telegraf<ContextMessageUpdate>> => {
         resolve(bot);
       })
       .catch((err) => {
+        bot.telegram.sendMessage(adminChatId, 'An error occurred with mongodb');
         logger.error(`Couldn't connect to database\n${err}`);
         console.log(err);
         reject();
