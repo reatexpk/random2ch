@@ -1,4 +1,5 @@
 import he from 'he';
+import { parse, TextNode, HTMLElement } from 'node-html-parser';
 
 import { Thread as ThreadType } from '../typings/server';
 import { baseUrl } from '../constants';
@@ -10,6 +11,8 @@ export function transformPostOnError(post: string) {
     .replace(/<br>/gi, '\n')
     .replace(/<\/?strong>/gi, '')
     .replace(/<\/?em>/gi, '')
+    .replace(/<\/?sup>/gi, '')
+    .replace(/<\/?sub>/gi, '')
     .replace(/<\/?span.*?>/gi, '')
     .replace(/<a.+?href="(.+?)".{0,}?>(.+?)<\/a>/g, '$1');
   return parsedPost;
@@ -37,27 +40,28 @@ export function parseComment(comment: string) {
   return replaceLinks(he.decode(parsedComment));
 }
 
-function finalCheck(parsedString: string) {
-  let returnString = parsedString;
-  if (returnString.match(/<em>([^]+<a\s.*?>([^]+)<\/a>[^]+)<\/em>/gi)) {
-    returnString = returnString.replace(
-      /<a.+?href="(.+?)".{0,}?>(.+?)<\/a>/gi,
-      '$1',
-    );
-  }
-  if (returnString.match(/<strong>([^]+<a\s.*?>([^]+)<\/a>[^]+)<\/strong>/gi)) {
-    returnString = returnString.replace(
-      /<a.+?href="(.+?)".{0,}?>(.+?)<\/a>/gi,
-      '$1',
-    );
-  }
-  if (returnString.match(/<strong>([^]+)<em>([^]+)<\/em>([^]+)<\/strong>/gi)) {
-    returnString = returnString.replace(/<\/?em>/gi, '$1');
-  }
-  if (returnString.match(/<em>([^]+)<em>([^]+)<\/em>([^]+)<\/em>/gi)) {
-    returnString = returnString.replace(/<\/?strong>/gi, '$1');
-  }
-  return returnString;
+function removeNestedHtmlTags(string: string) {
+  const root = parse(`<div>${string}</div>`);
+
+  let result = '';
+
+  root.childNodes[0].childNodes.forEach((node) => {
+    if (node instanceof TextNode) {
+      result += node.rawText;
+    } else if (node instanceof HTMLElement) {
+      const { tagName } = node;
+      const innerTag = node
+        .toString()
+        .replace(/<a.+?href="(.+?)".{0,}?>.+?<\/a>/gi, '$1')
+        .replace(/<.*?\b[^>]*>([\s\S]*?)<\/.*?>/gi, '$1');
+      result += `<${tagName}>${innerTag.replace(
+        /(<[^]*?>)|(<\/[^]*?>)/gi,
+        '',
+      )}</${tagName}>`;
+    }
+  });
+
+  return result;
 }
 
 function parseStringToHtml(text: string) {
@@ -68,7 +72,7 @@ function parseStringToHtml(text: string) {
     .replace(/<\/?sup>/gi, '')
     .replace(/<\/?sub>/gi, '')
     .replace(/<\/?span.*?>/gi, '');
-  return finalCheck(returnString);
+  return removeNestedHtmlTags(returnString);
 }
 
 export function createPostTest({ subject, comment, num, files }: ThreadType) {
@@ -77,7 +81,7 @@ export function createPostTest({ subject, comment, num, files }: ThreadType) {
       ? `${baseUrl}${files[0].path}`
       : `${baseUrl}/b/res/${num}.html`;
   const post =
-    `<strong>${parseStringToHtml(subject)}</strong>` +
+    `<strong>${parseStringToHtml(subject)}</strong> ` +
     `<a href="${imageSrc}">⠀</a>\n\n` +
     `${parseStringToHtml(comment)}\n\n` +
     `${baseUrl}/b/res/${num}.html`;
