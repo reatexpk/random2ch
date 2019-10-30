@@ -46,6 +46,7 @@
     "he": "^1.2.0",
     "https-proxy-agent": "^2.2.3",
     "mongoose": "^5.7.6",
+    "node-html-parser": "^1.1.16",
     "telegraf": "^3.33.0",
     "winston": "^3.2.1"
   }
