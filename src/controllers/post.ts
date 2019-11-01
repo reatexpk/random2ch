@@ -40,16 +40,23 @@ export default async function jobPostController(
               logger.warn(
                 `Failed to post thread ${_id} with markdown, retry without markdown`,
               );
-              bot.telegram.sendMessage(
-                adminChatId,
-                `Failed to post thread ${_id} with markdown\n${thread.comment}`,
-              );
               const fallbackPost = transformPostOnError(post);
-              bot.telegram.sendMessage(channelId, fallbackPost).catch(() => {
-                const errorMessage = `Failed to post thread ${_id}\n${thread.comment}\n${err}`;
-                logger.error(errorMessage);
-                bot.telegram.sendMessage(adminChatId, errorMessage);
-              });
+              bot.telegram
+                .sendMessage(channelId, fallbackPost)
+                .then(() => {
+                  logger.info(
+                    `Thread ${_id} has been successfully posted without markdown`,
+                  );
+                  bot.telegram.sendMessage(
+                    adminChatId,
+                    `Failed to post thread ${_id} with markdown\n${thread.comment}`,
+                  );
+                })
+                .catch(() => {
+                  const errorMessage = `Failed to post thread ${_id}\n${thread.comment}\n${err}`;
+                  logger.error(errorMessage);
+                  bot.telegram.sendMessage(adminChatId, errorMessage);
+                });
             });
         })
         .catch(() => {});
