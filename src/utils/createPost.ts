@@ -80,11 +80,25 @@ export function createPostTest({ subject, comment, num, files }: ThreadType) {
     files && files.length
       ? `${baseUrl}${files[0].path}`
       : `${baseUrl}/b/res/${num}.html`;
-  const post =
+  let parsedComment = parseStringToHtml(comment);
+  let post =
     `<strong>${parseStringToHtml(subject)}</strong> ` +
     `<a href="${imageSrc}">⠀</a>\n\n` +
-    `${parseStringToHtml(comment)}\n\n` +
+    `${parsedComment}\n\n` +
     `${baseUrl}/b/res/${num}.html`;
+
+  if (post.length > 4096) {
+    const symbolsToCut = post.length - 4096;
+    parsedComment = parsedComment.slice(
+      0,
+      parsedComment.length - (symbolsToCut + 1),
+    );
+    post =
+      `<strong>${parseStringToHtml(subject)}</strong> ` +
+      `<a href="${imageSrc}">⠀</a>\n\n` +
+      `${parsedComment}\n\n` +
+      `${baseUrl}/b/res/${num}.html`;
+  }
   return post;
 }
 
