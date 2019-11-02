@@ -5,7 +5,7 @@ import fs from 'fs';
 
 import Api from '../api/api';
 import getConfig from '../utils/getConfig';
-import createPost from '../utils/createPost';
+import { createPost } from '../utils/createPost';
 import { asyncForEach, sleep } from '../utils/async';
 
 import { Thread as ThreadType } from '../typings/server';
