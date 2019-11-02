@@ -5,7 +5,8 @@
   "author": "reatexpk <reatexpk1@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "start": "nodemon src/index.ts localhost 4000"
+    "start": "nodemon src/index.ts localhost 4000",
+    "firstload": "cross-env FIRST_LOAD=true nodemon src/index.ts localhost 4000"
   },
   "husky": {
     "hooks": {
@@ -19,8 +20,12 @@
     ]
   },
   "devDependencies": {
+    "@types/cron": "^1.7.1",
+    "@types/he": "^1.1.0",
+    "@types/mongoose": "^5.5.23",
     "@typescript-eslint/eslint-plugin": "^2.4.0",
     "@typescript-eslint/parser": "^2.4.0",
+    "cross-env": "^6.0.3",
     "eslint": "^6.5.1",
     "eslint-config-airbnb-base": "^14.0.0",
     "eslint-config-prettier": "^6.4.0",
@@ -32,5 +37,17 @@
     "prettier": "^1.18.2",
     "ts-node": "^8.4.1",
     "typescript": "^3.6.4"
+  },
+  "dependencies": {
+    "axios": "^0.19.0",
+    "cors-anywhere": "^0.4.1",
+    "cron": "^1.7.2",
+    "dotenv": "^8.2.0",
+    "he": "^1.2.0",
+    "https-proxy-agent": "^2.2.3",
+    "mongoose": "^5.7.6",
+    "node-html-parser": "^1.1.16",
+    "telegraf": "^3.33.0",
+    "winston": "^3.2.1"
   }
 }
